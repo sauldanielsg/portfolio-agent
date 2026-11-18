@@ -5,13 +5,8 @@ from models import Profile, ChatRequest, ChatResponse
 from settings import Settings
 from quota import Quota
 from gemini_provider import GeminiProvider, ProviderError, ProviderRateLimitError
-
-settings = Settings()
-logger = logging.getLogger("uvicorn.error")
-quota = Quota(settings.daily_model_call_limit, settings.quota_timezone)
-provider = GeminiProvider(settings)
-
-app = FastAPI(title="AI Portfolio API")
+from portfolio_agent import PortfolioAgent
+from agent_middleware import DailyLimitReached
 
 PROFILE_PATH = (
     Path(__file__).resolve().parents[3]
@@ -20,8 +15,21 @@ PROFILE_PATH = (
     / "profile.json"
 )
 
+settings = Settings()
+logger = logging.getLogger("uvicorn.error")
+quota = Quota(settings.daily_model_call_limit, settings.quota_timezone)
+provider = GeminiProvider(settings)
+app = FastAPI(title="AI Portfolio API")
+
 profile = Profile.model_validate_json(
     PROFILE_PATH.read_text(encoding="utf-8")
+)
+
+portfolio_agent = (
+    PortfolioAgent(settings, profile, quota)
+    if settings.ai_mode == "gemini"
+    and settings.agent_backend == "langchain"
+    else None
 )
 
 @app.get("/health")
@@ -38,6 +46,44 @@ def chat(request: ChatRequest) -> ChatResponse:
                 "message": "I'm taking a break. Please check back later.",
             },
         )
+    if settings.ai_mode == "gemini" and settings.agent_backend == "langchain":
+        if portfolio_agent is None:
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "error": "AI_UNAVAILABLE",
+                    "message": "The assistant is unavailable. Please try again later.",
+                },
+            )
+
+        try:
+            return portfolio_agent.answer(
+                request.message,
+                request.history,
+            )
+        except DailyLimitReached as error:
+            raise HTTPException(
+                status_code=429,
+                detail={
+                    "error": "DAILY_LIMIT_REACHED",
+                    "message": (
+                        "The AI assistant has reached its daily limit. "
+                        "Please try again tomorrow."
+                    ),
+                },
+            ) from error
+        except Exception as error:
+            logger.warning(
+                "Portfolio agent failed: category=%s",
+                type(error).__name__,
+            )
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "error": "AI_UNAVAILABLE",
+                    "message": "I'm taking a break. Please check back later.",
+                },
+            ) from error
     if settings.ai_mode == "gemini":
         if not quota.reserve():
             raise HTTPException(status_code=429, detail={

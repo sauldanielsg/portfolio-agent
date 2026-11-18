@@ -22,6 +22,8 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
     )
     
+    agent_backend: Literal["sdk", "langchain"] = "sdk"
+    
     @model_validator(mode="after")
     def validate_configuration(self):
         try:

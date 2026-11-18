@@ -6,6 +6,7 @@ import main
 from models import Profile, ChatResponse, ChatMessage
 from quota import Quota
 from gemini_provider import ProviderError, ProviderRateLimitError
+from agent_middleware import DailyLimitReached
 
 
 @pytest.fixture
@@ -13,6 +14,8 @@ def client(monkeypatch):
     # Keep tests independent of the developer's ai_enabled environment setting.
     monkeypatch.setattr(main.settings, "ai_enabled", True)
     monkeypatch.setattr(main.settings, "ai_mode", "mock")
+    monkeypatch.setattr(main.settings, "agent_backend", "sdk")
+    monkeypatch.setattr(main, "portfolio_agent", MagicMock())
     monkeypatch.setattr(main, "quota", Quota(2, "America/Los_Angeles"))
     monkeypatch.setattr(main, "provider", MagicMock())
     with TestClient(main.app) as client:
@@ -141,3 +144,55 @@ def test_mock_and_disabled_chat_do_not_call_provider_or_reserve(client, monkeypa
     assert client.post("/api/v1/chat", json={"message": "Hello"}).status_code == 503
     assert main.quota.used == 0
     main.provider.answer.assert_not_called()
+
+
+def test_mock_mode_ignores_langchain_backend(client, monkeypatch):
+    monkeypatch.setattr(main.settings, "agent_backend", "langchain")
+    response = client.post("/api/v1/chat", json={"message": "Show my resume"})
+    assert response.status_code == 200
+    assert response.json()["action"] == "show_resume"
+    main.portfolio_agent.answer.assert_not_called()
+    main.provider.answer.assert_not_called()
+    assert main.quota.used == 0
+
+
+def test_langchain_route_forwards_history_without_extra_reservation(client, monkeypatch):
+    monkeypatch.setattr(main.settings, "ai_mode", "gemini")
+    monkeypatch.setattr(main.settings, "agent_backend", "langchain")
+    reserve = MagicMock(wraps=main.quota.reserve)
+    monkeypatch.setattr(main.quota, "reserve", reserve)
+    main.portfolio_agent.answer.return_value = ChatResponse(message="Here it is.", action="show_resume")
+    history = [{"role": "assistant", "content": "Want the resume?"}]
+    response = client.post("/api/v1/chat", json={"message": "Yes", "history": history})
+    assert response.status_code == 200
+    assert response.json()["action"] == "show_resume"
+    main.portfolio_agent.answer.assert_called_once_with(
+        "Yes", [ChatMessage.model_validate(history[0])]
+    )
+    reserve.assert_not_called()  # The real agent's middleware owns reservations.
+    main.provider.answer.assert_not_called()
+
+
+@pytest.mark.parametrize("failure,status,code", [
+    (DailyLimitReached("exhausted"), 429, "DAILY_LIMIT_REACHED"),
+    (RuntimeError("private details"), 503, "AI_UNAVAILABLE"),
+])
+def test_langchain_failures_return_safe_responses(client, monkeypatch, failure, status, code):
+    monkeypatch.setattr(main.settings, "ai_mode", "gemini")
+    monkeypatch.setattr(main.settings, "agent_backend", "langchain")
+    main.portfolio_agent.answer.side_effect = failure
+    response = client.post("/api/v1/chat", json={"message": "Hello"})
+    assert response.status_code == status
+    assert response.json()["detail"]["error"] == code
+    assert "private details" not in response.text
+    main.provider.answer.assert_not_called()
+
+
+def test_missing_langchain_agent_returns_unavailable(client, monkeypatch):
+    monkeypatch.setattr(main.settings, "ai_mode", "gemini")
+    monkeypatch.setattr(main.settings, "agent_backend", "langchain")
+    monkeypatch.setattr(main, "portfolio_agent", None)
+    response = client.post("/api/v1/chat", json={"message": "Hello"})
+    assert response.status_code == 503
+    assert response.json()["detail"]["error"] == "AI_UNAVAILABLE"
+    assert main.quota.used == 0
