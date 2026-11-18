@@ -1,0 +1,21 @@
+
+# Local environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Python environments, caches, and build output
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Frontend dependencies and local OS files
+node_modules/
+.DS_Store

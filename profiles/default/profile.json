@@ -1,0 +1,134 @@
+{
+  "profileId": "default",
+  "name": "Saul D Silva Garcia",
+  "headline": "Full-Stack Software Engineer",
+  "summary": "Software Engineer with 8+ years of experience building scalable full-stack applications, backend services, and cloud-native systems using React, TypeScript, Node.js, Java, Python, and AWS. Proven track record optimizing application performance, designing reusable UI architectures, and engineering data systems processing hundreds of millions of records daily. Experienced in developing AI agents, MCP integrations, and LLM-powered engineering tools.",
+  "experience": [
+    {
+      "id": "intuit",
+      "company": "Intuit",
+      "title": "Software Engineer II",
+      "startDate": "2021-11",
+      "endDate": "2026-07",
+      "highlights": [
+        "Architected and maintained a reusable React and TypeScript component library powering 100+ TurboTax content pages, standardizing UI development, accessibility, testing, and documentation across engineering teams.",
+        "Developed business-critical MarTech experiences for TurboTax using React, TypeScript, and Redux, powering personalized customer journeys, targeted product recommendations, and upsell flows based on user state and business rules.",
+        "Optimized TurboTax application performance, reducing page load times from over 10 seconds to under 3 seconds through frontend rendering and routing improvements.",
+        "Maintained and enhanced Spring Boot REST APIs supporting TurboTax applications, implementing business requirements, resolving production issues, and supporting annual tax-year migrations.",
+        "Engineered scalable QuickBooks Online data pipelines using Python, Apache Spark, SQL, and AWS, processing hundreds of millions of records daily to support business analytics and reporting.",
+        "Developed internal AI agents integrating GitHub, Jira, and Slack to automate engineering workflows, including deployment validation, code quality checks, and pull request reviews.",
+        "Built an AI-powered debugging and observability agent using Model Context Protocol (MCP), enabling analysis of data pipeline health, production failures, and system logs to accelerate root-cause investigation."
+      ]
+    },
+    {
+      "id": "wizeline",
+      "company": "Wizeline",
+      "title": "Software Engineer III",
+      "startDate": "2021-05",
+      "endDate": "2021-10",
+      "highlights": [
+        "Designed and implemented scalable backend REST APIs using Node.js and Express, supporting full-stack applications and service integrations.",
+        "Developed full-stack web applications using modern JavaScript frameworks, collaborating with distributed engineering teams.",
+        "Implemented CI/CD pipelines using Jenkins to automate application builds, testing, and deployments."
+      ]
+    },
+    {
+      "id": "collins-aerospace",
+      "company": "Collins Aerospace",
+      "title": "Software Developer",
+      "startDate": "2019-05",
+      "endDate": "2021-05",
+      "highlights": [
+        "Developed cloud-native applications and backend services using AWS Lambda, API Gateway, S3, EC2, and Kinesis.",
+        "Built infrastructure-as-code solutions using AWS CloudFormation and implemented CI/CD pipelines with AWS CodePipeline and CodeBuild.",
+        "Developed internal engineering tools and web applications using JavaScript, HTML, CSS, and SQL, supporting containerized deployments with Docker."
+      ]
+    },
+    {
+      "id": "skyworks",
+      "company": "Skyworks Inc.",
+      "title": "Software Developer (Part-Time)",
+      "startDate": "2018-06",
+      "endDate": "2018-12",
+      "highlights": [
+        "Developed internal manufacturing software using C#, C++, Java, and web technologies, supporting engineering workflows, system integrations, and production data analysis."
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "category": "Languages",
+      "items": [
+        "TypeScript",
+        "JavaScript",
+        "Python",
+        "Java",
+        "SQL",
+        "C#",
+        "C++"
+      ]
+    },
+    {
+      "category": "Frontend & Backend",
+      "items": [
+        "React",
+        "Redux",
+        "HTML",
+        "CSS",
+        "Responsive Design",
+        "Cypress",
+        "Storybook",
+        "Node.js",
+        "Express",
+        "Spring Boot",
+        "REST APIs",
+        "PostgreSQL"
+      ]
+    },
+    {
+      "category": "Cloud & Data",
+      "items": [
+        "AWS Lambda",
+        "S3",
+        "EC2",
+        "API Gateway",
+        "Glue",
+        "Kinesis",
+        "Docker",
+        "Jenkins",
+        "CI/CD",
+        "Spark",
+        "PySpark",
+        "ETL",
+        "Data Modeling",
+        "Distributed Systems"
+      ]
+    },
+    {
+      "category": "AI Engineering",
+      "items": [
+        "LLMs",
+        "AI Agents",
+        "MCP",
+        "RAG"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "B.S. Computer Engineering",
+      "institution": "Autonomous University of Baja California"
+    }
+  ],
+  "languages": [
+    {
+      "name": "English",
+      "proficiency": "Fluent"
+    },
+    {
+      "name": "Spanish",
+      "proficiency": "Native"
+    }
+  ],
+  "projects": []
+}
