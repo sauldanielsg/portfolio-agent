@@ -19,3 +19,6 @@ dist/
 # Frontend dependencies and local OS files
 node_modules/
 .DS_Store
+
+# Generated retrieval indexes
+/artifacts/
